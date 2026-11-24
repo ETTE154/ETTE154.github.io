@@ -5,3 +5,20 @@
   role: 창업자 · CTO
   url: https://roev-website.web.app
   type: position
+- id: deu-ai-phd
+  period_start: "2026.03"
+  org: 동의대학교 인공지능학과
+  role: 박사과정
+  type: education
+- id: deu-ai-ms
+  period_start: "2024.03"
+  period_end: "2026.02"
+  org: 동의대학교 인공지능학과
+  role: 석사
+  type: education
+- id: deu-robotics-bs
+  period_start: "2017.03"
+  period_end: "2024.02"
+  org: 동의대학교 로봇공학과
+  role: 학사
+  type: education

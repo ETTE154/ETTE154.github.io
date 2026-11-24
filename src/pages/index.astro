@@ -22,7 +22,7 @@ const photo = resolveImage(profile.photo.image);
 const links = socialLinks(profile);
 const introParts = profile.intro?.split(/(\s+)/u);
 const updated = formatBuildDate(new Date());
-const news = (newsFeed?.data.items ?? []).sort((a, b) => b.date.localeCompare(a.date));
+const news = (newsFeed?.data.items ?? []).toSorted((a, b) => b.date.localeCompare(a.date));
 const experience = experienceEntries.map(({ data }) => data).sort((a, b) => b.period_start.localeCompare(a.period_start));
 const person = {
   '@context': 'https://schema.org',
@@ -133,15 +133,15 @@ const structuredData = JSON.stringify(person).replaceAll('<', '\\u003c');
     gap: .8rem;
     margin: 0;
     color: var(--text);
-    font-size: clamp(2.5rem, 1.95rem + 2.4vw, 3.65rem);
-    font-weight: 750;
+    font-size: 2rem;
+    font-weight: 700;
     line-height: 1.16;
-    letter-spacing: -.055em;
+    letter-spacing: 0;
   }
 
   h1 span {
     color: var(--muted);
-    font-size: clamp(1.05rem, .9rem + .5vw, 1.35rem);
+    font-size: 1.125rem;
     font-weight: 450;
     letter-spacing: 0;
   }
@@ -223,13 +223,16 @@ const structuredData = JSON.stringify(person).replaceAll('<', '\\u003c');
 
   @media (max-width: 38rem) {
     .profile { row-gap: 1rem; }
-    h1 { grid-column: 1 / -1; }
-    .portrait { grid-area: 2 / 2; }
+    h1 { grid-column: 1 / -1; font-size: 1.625rem; }
+    .portrait {
+      grid-area: 2 / 2;
+      inline-size: 6rem;
+      block-size: 6rem;
+    }
     .affiliations { align-self: center; }
   }
 
   @media (max-width: 22rem) {
-    .portrait { inline-size: 7.25rem; block-size: 7.25rem; }
     h1 { gap: .55rem; }
   }
 </style>

@@ -1,7 +1,5 @@
 ---
-import { getImage } from 'astro:assets';
 import { ko } from '../i18n/ko';
-import { resolveImage } from '../lib/images';
 import { fullName, type Profile } from '../lib/profile';
 import '@fontsource-variable/noto-sans-kr';
 import '../styles/global.css';
@@ -18,9 +16,7 @@ const name = fullName(profile);
 const pageTitle = title ? `${title} | ${name}` : `${name} | ${profile.position}`;
 const site = Astro.site!;
 const canonical = new URL(Astro.url.pathname, site);
-const photo = resolveImage(profile.photo.image);
-const icon = await getImage({ src: photo, width: 32, height: 32, fit: 'cover', format: 'png' });
-const og = noindex ? null : await getImage({ src: photo, width: Math.min(640, photo.width), format: 'jpeg' });
+const ogImage = new URL('/images/og-profile.png', site);
 ---
 <!doctype html>
 <html lang={ko.language}>
@@ -30,7 +26,8 @@ const og = noindex ? null : await getImage({ src: photo, width: Math.min(640, ph
     <meta name="color-scheme" content="light dark" />
     <meta name="description" content={description} />
     <title>{pageTitle}</title>
-    <link rel="icon" href={icon.src} type="image/png" sizes="32x32" />
+    <link rel="icon" href="/images/favicon.png" type="image/png" sizes="32x32" />
+    <link rel="icon" href="/images/favicon.svg" type="image/svg+xml" sizes="any" />
     {noindex ? <meta name="robots" content="noindex" /> : (
       <>
         <link rel="canonical" href={canonical} />
@@ -39,14 +36,11 @@ const og = noindex ? null : await getImage({ src: photo, width: Math.min(640, ph
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={description} />
         <meta property="og:url" content={canonical} />
-        {og && (
-          <>
-            <meta property="og:image" content={new URL(og.src, site)} />
-            <meta property="og:image:alt" content={profile.photo.alt} />
-            <meta property="og:image:width" content={og.attributes.width} />
-            <meta property="og:image:height" content={og.attributes.height} />
-          </>
-        )}
+        <meta property="og:image" content={ogImage} />
+        <meta property="og:image:type" content="image/png" />
+        <meta property="og:image:alt" content={`${name} · ${profile.position}`} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
         {profile.verification?.naver && <meta name="naver-site-verification" content={profile.verification.naver} />}
         {profile.verification?.google && <meta name="google-site-verification" content={profile.verification.google} />}
       </>

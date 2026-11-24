@@ -4,7 +4,7 @@ university: 동의대학교
 position: 동의대학교 인공지능학과 박사과정
 company: ㈜로이브
 lab:
-  name: RECS Lab · 로봇·임베디드 제어시스템 연구실
+  name: 로봇·임베디드 제어시스템 연구실(RECS Lab.)
   url: https://recs-lab.kr
 links:
   github: https://github.com/ETTE154
@@ -16,9 +16,10 @@ photo:
   image: chae-uk-jeon.jpeg
   alt: 전채욱 (Chae-Uk Jeon) 프로필 사진
 intro: >-
-  LLM–하드웨어 공동설계와 온디바이스 AI를 연구합니다.
-  연구 분야에는 NPU(신경망 처리 장치) 가속과 로봇 제어 시스템도 포함됩니다.
-  ㈜로이브를 창업했고 CTO를 맡고 있습니다.
+  동의대학교 인공지능학과 박사과정에 재학 중이며, RECS Lab(지도교수 옥승호)에서 연구하고 있습니다.
+  엣지 NPU(신경망 처리 장치)에서 언어 모델을 효율적으로 실행하고, 이를 로봇 제어 시스템에 통합하는 온디바이스 AI 공동설계를 연구합니다.
+  동의대학교 로봇공학과에서 학사, 같은 대학 인공지능학과에서 석사 학위를 받았습니다.
+  2024년 ㈜로이브를 창업해 CTO로 재직하고 있습니다.
 description: >-
   동의대학교 인공지능학과 박사과정.
   LLM–하드웨어 공동설계, 온디바이스 AI, NPU(신경망 처리 장치) 가속, 로봇 제어 시스템 연구.

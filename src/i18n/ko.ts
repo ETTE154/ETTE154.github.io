@@ -17,6 +17,7 @@ export const ko = {
   lessNews: '접기',
   current: '현재',
   updated: '최종 수정',
+  notFoundTitle: '페이지를 찾을 수 없습니다',
   notFound: '페이지를 찾을 수 없습니다.',
   home: '홈',
   publications: {
