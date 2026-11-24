@@ -2,14 +2,14 @@
 import { Image } from 'astro:assets';
 import { getCollection, getEntry } from 'astro:content';
 import Base from '../layouts/Base.astro';
-import NewsList from '../components/NewsList.astro';
 import ExperienceList from '../components/ExperienceList.astro';
-import ProjectMedia from '../components/ProjectMedia.astro';
+import NewsList from '../components/NewsList.astro';
+import ProjectList from '../components/ProjectList.astro';
+import SocialLinks from '../components/SocialLinks.astro';
 import { ko } from '../i18n/ko';
 import { resolveImage } from '../lib/images';
 import { dateTime, formatBuildDate, fullName, getProfile, socialLinks } from '../lib/profile';
-
-import { getPublicProjects, projectPath } from '../lib/projects';
+import { getPublicProjects } from '../lib/projects';
 
 const [profile, newsFeed, projects, experienceEntries] = await Promise.all([
   getProfile(),
@@ -20,7 +20,8 @@ const [profile, newsFeed, projects, experienceEntries] = await Promise.all([
 const name = fullName(profile);
 const photo = resolveImage(profile.photo.image);
 const links = socialLinks(profile);
-const introParts = profile.intro?.split(/(\s+)/u);
+const footerLinks = links.filter(({ key }) => key === 'github' || key === 'youtube');
+const introParts = profile.intro?.split(/(RECS Lab|\s+)/u);
 const updated = formatBuildDate(new Date());
 const news = (newsFeed?.data.items ?? []).toSorted((a, b) => b.date.localeCompare(a.date));
 const experience = experienceEntries.map(({ data }) => data).sort((a, b) => b.period_start.localeCompare(a.period_start));
@@ -32,207 +33,207 @@ const person = {
   url: Astro.site!.href,
   affiliation: { '@type': 'CollegeOrUniversity', name: profile.university },
   worksFor: { '@type': 'Organization', name: profile.company },
-  sameAs: links.map(({ url }) => url),
+  sameAs: links.filter(({ key }) => key !== 'email').map(({ url }) => url),
 };
 const structuredData = JSON.stringify(person).replaceAll('<', '\\u003c');
 ---
 <Base profile={profile}>
   <script slot="head" type="application/ld+json" set:html={structuredData} />
   <main class="site-width">
-    <header class="profile">
-      <h1>{profile.name_ko} <span lang="en">{profile.name_en}</span></h1>
-      <div class="affiliations">
-        <p>{profile.position}</p>
-        <p><a href={profile.lab.url}>{profile.lab.name}</a></p>
-        {links.length > 0 && (
-          <ul class="social">
-            {links.map(({ label, url }, index) => (
-              <li>
-                {index > 0 && <span aria-hidden="true"> / </span>}
-                <a lang="en" href={url}>{label}</a>
-              </li>
-            ))}
-          </ul>
-        )}
+    <header class="hero">
+      <div class="hero-copy">
+        <h1>{profile.name_ko} <span lang="en">{profile.name_en}</span></h1>
+        <p class="statement">{profile.statement}</p>
+        <p class="affiliation">{profile.position} · <span class="company-word">{profile.company} {profile.company_role}</span></p>
       </div>
-      <Image
-        class="portrait"
-        src={photo}
-        alt={profile.photo.alt}
-        width={160}
-        height={160}
-        densities={['1.5x']}
-        fit="cover"
-        format="webp"
-        loading="eager"
-        fetchpriority="high"
-      />
+      {links.length > 0 && (
+        <div class="hero-links"><SocialLinks items={links} /></div>
+      )}
     </header>
 
-    {introParts && (
-      <p class="intro">{introParts.map((part) =>
-        part.startsWith(profile.company) ? <span class="company-word">{part}</span> : part
-      )}</p>
-    )}
-
-    <NewsList items={news} />
-
-    {projects.length > 0 && (
-      <section class="section-row" aria-labelledby="projects">
-        <h2 class="section-title" id="projects">{ko.sections.projects}</h2>
-        <ul class="row-list">
-          {projects.map((project) => (
-            <li class="project-row">
-              {project.thumbnail && (
-                <div class="project-photo">
-                  <ProjectMedia
-                    image={resolveImage(project.thumbnail.image)}
-                    alt={project.thumbnail.alt}
-                    width={108}
-                    height={72}
-                    video={project.video}
-                    mode="hover"
-                  />
-                </div>
-              )}
-              <div>
-                <h3>{project.has_detail ? <a href={projectPath(project.slug)}>{project.title}</a> : project.title}</h3>
-                <p>{project.summary}</p>
-              </div>
-              <time datetime={dateTime(project.period)}>{project.period}</time>
-            </li>
-          ))}
-        </ul>
-      </section>
-    )}
-
-    <ExperienceList heading={ko.sections.experience} id="experience" items={experience.filter(({ type }) => type === 'position')} />
-    <ExperienceList heading={ko.sections.education} id="education" items={experience.filter(({ type }) => type === 'education')} />
+    <div class="sections">
+      {introParts && (
+        <section class="section-row" aria-labelledby="about" data-reveal-section>
+          <h2 class="section-title" id="about">{ko.sections.about}</h2>
+          <div class="about-content">
+            <Image
+              class="portrait"
+              src={photo}
+              alt={profile.photo.alt}
+              width={140}
+              height={140}
+              densities={['2x']}
+              fit="cover"
+              format="webp"
+              loading="lazy"
+            />
+            <p class="about-text">{introParts.map((part) => (
+              part === 'RECS Lab' ? <a href={profile.lab.url}>{part}</a> :
+              part.startsWith(profile.company) ? <span class="company-word">{part}</span> : part
+            ))}</p>
+          </div>
+        </section>
+      )}
+      <NewsList items={news} />
+      <ExperienceList heading={ko.sections.experience} id="experience" items={experience.filter(({ type }) => type === 'position')} />
+      <ExperienceList heading={ko.sections.education} id="education" items={experience.filter(({ type }) => type === 'education')} />
+      <ProjectList items={projects} />
+    </div>
   </main>
-  <footer class="site-width">
-    <span>© {name}</span>
-    <span class="footer-divider" aria-hidden="true">·</span>
-    <span>{ko.updated} <time datetime={dateTime(updated)}>{updated}</time></span>
+  <footer class="site-width footer">
+    <SocialLinks items={footerLinks} />
+    <p>© {name} · {ko.updated} <time datetime={dateTime(updated)}>{updated}</time></p>
   </footer>
 </Base>
 
+<script>
+  const sectionSelector = '[data-reveal-section]';
+  const sections = document.querySelectorAll(sectionSelector);
+  const threshold = 0.15;
+
+  if (sections.length && 'IntersectionObserver' in window && matchMedia('(prefers-reduced-motion: no-preference)').matches) {
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        // Keep a section readable if it is too tall for 15% of it to fit on screen.
+        const tooTall = entry.rootBounds && entry.boundingClientRect.height * threshold > entry.rootBounds.height;
+
+        if (entry.intersectionRatio >= threshold || tooTall) {
+          reveal(entry.target);
+        }
+      }
+    }, { threshold });
+
+    function reveal(section: Element) {
+      section.setAttribute('data-revealed', '');
+      observer.unobserve(section);
+    }
+
+    for (const section of sections) {
+      observer.observe(section);
+    }
+
+    document.addEventListener('focusin', (event) => {
+      const section = event.target instanceof Element && event.target.closest(sectionSelector);
+      if (section && !section.hasAttribute('data-revealed')) reveal(section);
+    });
+
+    document.documentElement.classList.add('js');
+  }
+</script>
+
 <style>
-  .profile {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-rows: auto 1fr;
-    column-gap: clamp(1rem, 4vw, 3rem);
-    row-gap: .74rem;
-    align-items: start;
-    padding-block-start: clamp(2.5rem, 7vw, 5rem);
+  .hero {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-block-size: 100svh;
+    padding-block: 2rem 6rem;
   }
 
-  h1 {
+  .hero-copy {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .hero h1 {
     display: flex;
     align-items: baseline;
-    gap: .8rem;
+    gap: .65rem;
     margin: 0;
-    color: var(--text);
-    font-size: 2rem;
+    font-size: 1.25rem;
     font-weight: 700;
-    line-height: 1.16;
-    letter-spacing: 0;
+    line-height: 1.4;
   }
 
-  h1 span {
+  .hero h1 span {
     color: var(--muted);
-    font-size: 1.125rem;
-    font-weight: 450;
+    font-size: 1rem;
+    font-weight: 400;
+  }
+
+  .statement {
+    max-inline-size: 45rem;
+    margin: 0;
+    font-size: 2.25rem;
+    font-weight: 400;
+    line-height: 1.5;
     letter-spacing: 0;
   }
 
-  .affiliations { align-self: end; }
-  .affiliations p { margin: 0; }
-  .affiliations p + p { margin-block-start: .1rem; }
-
-  .social {
-    display: flex;
-    flex-wrap: wrap;
-    column-gap: .38rem;
-    row-gap: .05rem;
-    margin: .76rem 0 0;
-    padding: 0;
-    list-style: none;
-    font-size: .875rem;
-  }
-
-  .social li { white-space: nowrap; }
-  .social span { margin-inline-end: .25rem; color: var(--muted); }
-
-  .portrait {
-    grid-area: 1 / 2 / 3;
-    inline-size: 10rem;
-    block-size: 10rem;
-    aspect-ratio: 1;
-    object-fit: cover;
-    border-radius: 3px;
-  }
-
-  .intro {
-    max-inline-size: 43rem;
-    margin: clamp(1.9rem, 4vw, 2.5rem) 0 clamp(1.8rem, 4vw, 2.6rem);
+  .affiliation {
+    margin: 0;
+    color: var(--muted);
     font-size: 1rem;
-    line-height: 1.85;
+  }
+
+  .hero-links {
+    margin-block-start: 1rem;
+    font-size: .875rem;
   }
 
   .company-word { white-space: nowrap; }
 
-  .profile + :not(.intro) { margin-block-start: 2rem; }
-
-  .project-row {
-    display: flex;
-    align-items: flex-start;
-    gap: .85rem;
+  .sections {
+    display: grid;
+    gap: var(--section-gap);
+    margin-block-start: var(--section-gap);
   }
 
-  .project-row h3 {
+  .sections:empty { display: none; }
+
+  .about-content {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 8.75rem;
+    gap: 1.5rem;
+    align-items: start;
+  }
+
+  .portrait {
+    grid-area: 1 / 2;
+    inline-size: 8.75rem;
+    block-size: 8.75rem;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: .25rem;
+  }
+
+  .about-text {
+    grid-area: 1 / 1;
     margin: 0;
     font-size: 1rem;
-    font-weight: 700;
-    line-height: 1.5;
+    line-height: 1.85;
   }
 
-  .project-row p { margin: .2rem 0 0; color: var(--muted); }
-  .project-row time { margin-inline-start: auto; }
-  .project-photo {
-    flex: 0 0 auto;
-    inline-size: 6.75rem;
-    aspect-ratio: 3 / 2;
-    overflow: hidden;
-    border-radius: 3px;
-  }
-
-  .project-photo :global(.media),
-  .project-photo :global(img) { inline-size: 100%; block-size: 100%; object-fit: cover; }
-
-  footer {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: .2rem .55rem;
-    border-block-start: 1px solid var(--line);
-    padding-block: 1.4rem 2.7rem;
+  .footer {
+    display: grid;
+    gap: .5rem;
+    margin-block-start: var(--section-gap);
+    padding-block-end: 3rem;
     color: var(--muted);
-    font-size: .83rem;
+    font-size: .8125rem;
   }
+
+  .footer p { margin: 0; }
 
   @media (max-width: 38rem) {
-    .profile { row-gap: 1rem; }
-    h1 { grid-column: 1 / -1; font-size: 1.625rem; }
+    .hero {
+      min-block-size: max(80svh, calc(100svh - var(--section-gap)));
+      padding-block-end: 5rem;
+    }
+
+    .statement { font-size: 1.5rem; }
+
+    .about-content {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1rem;
+    }
+
     .portrait {
-      grid-area: 2 / 2;
+      grid-area: 1 / 1;
       inline-size: 6rem;
       block-size: 6rem;
     }
-    .affiliations { align-self: center; }
-  }
 
-  @media (max-width: 22rem) {
-    h1 { gap: .55rem; }
+    .about-text { grid-area: 2 / 1; }
   }
 </style>

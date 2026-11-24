@@ -12,18 +12,18 @@ interface Props {
 const { heading, id, items } = Astro.props;
 ---
 {items.length > 0 && (
-  <section class="section-row" aria-labelledby={id}>
+  <section class="section-row" aria-labelledby={id} data-reveal-section>
     <h2 class="section-title" id={id}>{heading}</h2>
-    <ul class="row-list">
+    <ul class="row-list experience-list">
       {items.map(({ period_start, period_end, org, role, url }) => (
         <li class="experience-row">
+          <span class="organization">{url ? <a href={url}>{org}</a> : org}</span>
           <span class="period">
             <time datetime={dateTime(period_start)}>{period_start}</time>
             <span aria-hidden="true"> – </span>
             {period_end ? <time datetime={dateTime(period_end)}>{period_end}</time> : ko.current}
           </span>
-          <span class="organization">{url ? <a href={url}>{org}</a> : org}</span>
-          <span>{role}</span>
+          <span class="role">{role}</span>
         </li>
       ))}
     </ul>
@@ -31,21 +31,33 @@ const { heading, id, items } = Astro.props;
 )}
 
 <style>
+  .experience-list { row-gap: 1.5rem; }
+
   .experience-row {
     display: grid;
-    grid-template-columns: 10rem minmax(5rem, .8fr) minmax(0, 1.25fr);
-    column-gap: .6rem;
+    grid-template-columns: minmax(0, 1fr) max-content;
+    gap: .2rem 1rem;
     align-items: baseline;
   }
-  .period { color: var(--muted); white-space: nowrap; }
+
   .organization { font-weight: 600; }
 
-  @media (max-width: 38rem) {
-    .experience-row { grid-template-columns: 7.5rem auto minmax(0, 1fr); column-gap: .55rem; }
+  .period {
+    justify-self: end;
+    color: var(--muted);
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: .8125rem;
+    white-space: nowrap;
   }
 
-  @media (max-width: 22rem) {
-    .experience-row { grid-template-columns: 1fr auto; }
-    .period { grid-column: 1 / -1; }
+  .role {
+    grid-column: 1 / -1;
+    color: var(--muted);
+    font-size: .9375rem;
+  }
+
+  @media (max-width: 38rem) {
+    .experience-row { grid-template-columns: minmax(0, 1fr); }
+    .period { justify-self: start; }
   }
 </style>

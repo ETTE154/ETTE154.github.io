@@ -3,10 +3,12 @@
   --surface: #fff;
   --text: #1b2230;
   --muted: #515d70;
-  --accent: #224f91;
+  --accent: #1f4e9a;
   --line: #d7dde5;
   --gutter: clamp(1.25rem, 5vw, 2.5rem);
-  --content-width: 54rem;
+  --content-width: 53rem;
+  --section-gap: 8rem;
+  --font-mono: ui-monospace, monospace;
   font-family: 'Noto Sans KR Variable', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
   font-synthesis: none;
   line-height: 1.65;
@@ -19,7 +21,7 @@
     --surface: #151a23;
     --text: #e7ecf3;
     --muted: #b7c2d3;
-    --accent: #a2c7fa;
+    --accent: #8fb3ff;
     --line: #394351;
   }
 }
@@ -35,18 +37,21 @@ img { max-inline-size: 100%; vertical-align: middle; }
 
 .section-row {
   display: grid;
-  grid-template-columns: minmax(7rem, 1fr) minmax(0, 4.5fr);
-  gap: .64rem 1.55rem;
-  border-block-start: 1px solid var(--line);
-  padding-block: 1.24rem;
+  grid-template-columns: 10rem minmax(0, 40rem);
+  column-gap: 3rem;
+  align-items: start;
 }
 
 .section-title {
   margin: 0;
-  font-size: 1.06rem;
+  font-size: .875rem;
   font-weight: 700;
-  line-height: 1.54;
+  line-height: 1.6;
+  color: var(--accent);
+  letter-spacing: .04em;
 }
+
+.section-row > .section-title { text-align: end; }
 
 .row-list {
   display: grid;
@@ -54,11 +59,29 @@ img { max-inline-size: 100%; vertical-align: middle; }
   margin: 0;
   padding: 0;
   list-style: none;
-  font-size: .92rem;
+  font-size: .9375rem;
 }
 
 .row-list time { color: var(--muted); white-space: nowrap; }
 
 @media (max-width: 38rem) {
-  .section-row { grid-template-columns: minmax(0, 1fr); padding-block: 1rem 1.2rem; }
+  :root { --section-gap: 4.5rem; }
+
+  .section-row {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: .75rem;
+  }
+
+  .section-row > .section-title { text-align: start; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .js [data-reveal-section]:not([data-revealed]):not(:focus-within) {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  .js [data-revealed]:not(:focus-within) {
+    transition: opacity 500ms ease-out, transform 500ms ease-out;
+  }
 }

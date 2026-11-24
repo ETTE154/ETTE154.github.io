@@ -1,0 +1,105 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import ProjectMedia from './ProjectMedia.astro';
+import { ko } from '../i18n/ko';
+import { resolveImage } from '../lib/images';
+import { dateTime } from '../lib/profile';
+import { projectPath } from '../lib/projects';
+
+interface Props {
+  items: CollectionEntry<'projects'>['data'][];
+}
+
+const { items } = Astro.props;
+---
+
+{items.length > 0 && (
+  <section class="section-row" aria-labelledby="projects" data-reveal-section>
+    <h2 class="section-title" id="projects">{ko.sections.projects}</h2>
+    <ul class="row-list">
+      {items.map(({ title, slug, period, summary, thumbnail, video, has_detail }) => (
+        <li class:list={['project-row', { 'with-photo': thumbnail }]}>
+          {thumbnail && (
+            <div class="project-photo">
+              <ProjectMedia
+                image={resolveImage(thumbnail.image)}
+                alt={thumbnail.alt}
+                width={640}
+                height={400}
+                video={video}
+                mode="hover"
+              />
+            </div>
+          )}
+          <div class="project-copy">
+            <h3>{has_detail ? <a href={projectPath(slug)}>{title}</a> : title}</h3>
+            <p>{summary}</p>
+            <time datetime={dateTime(period)}>{period}</time>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </section>
+)}
+
+<style>
+  .with-photo {
+    display: grid;
+    grid-template-columns: 60% minmax(0, 1fr);
+    gap: 1rem;
+    align-items: start;
+  }
+
+  .project-photo {
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    border-radius: 4px;
+  }
+
+  .project-photo :global(.media),
+  .project-photo :global(img) {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+  }
+
+  .project-copy {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) max-content;
+    gap: .2rem 1rem;
+    align-items: baseline;
+  }
+
+  .with-photo .project-copy {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.5;
+  }
+
+  p {
+    grid-column: 1;
+    margin: 0;
+    color: var(--muted);
+    font-size: .9375rem;
+  }
+
+  time {
+    grid-area: 1 / 2;
+    color: var(--muted);
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: .8125rem;
+  }
+
+  .with-photo time {
+    grid-area: auto;
+  }
+
+  @media (max-width: 38rem) {
+    .with-photo { grid-template-columns: minmax(0, 1fr); }
+  }
+</style>

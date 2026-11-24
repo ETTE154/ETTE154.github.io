@@ -19,8 +19,10 @@ export function fullName(profile: Profile) {
 
 export function socialLinks(profile: Profile) {
   return (Object.keys(ko.social) as (keyof typeof ko.social)[]).flatMap((key) => {
-    const url = profile.links[key];
-    return url ? [{ label: ko.social[key], url }] : [];
+    const link = profile.links[key];
+    if (!link) return [];
+
+    return [{ key, label: ko.social[key], url: key === 'email' ? `mailto:${link}` : link }];
   });
 }
 

@@ -2,6 +2,7 @@ export const ko = {
   language: 'ko',
   locale: 'ko_KR',
   sections: {
+    about: '소개',
     news: '소식',
     publications: '논문',
     projects: '프로젝트',
@@ -11,6 +12,7 @@ export const ko = {
   social: {
     github: 'GitHub',
     youtube: 'YouTube',
+    email: '이메일',
     velog: 'Velog',
   },
   allNews: '전체 보기',

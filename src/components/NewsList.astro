@@ -12,10 +12,10 @@ const first = items.slice(0, 6);
 const rest = items.slice(6);
 ---
 {items.length > 0 && (
-  <section class="section-row" aria-labelledby="news">
+  <section class="section-row" aria-labelledby="news" data-reveal-section>
     <h2 class="section-title" id="news">{ko.sections.news}</h2>
     <div>
-      <ul class="row-list">
+      <ul class="row-list news-list">
         {first.map(({ date, text, link }) => (
           <li><time datetime={dateTime(date)}>{date}</time> {link ? <a href={link}>{text}</a> : <span>{text}</span>}</li>
         ))}
@@ -23,7 +23,7 @@ const rest = items.slice(6);
       {rest.length > 0 && (
         <details>
           <summary><span>{ko.allNews}</span><span>{ko.lessNews}</span></summary>
-          <ul class="row-list">
+          <ul class="row-list news-list">
             {rest.map(({ date, text, link }) => (
               <li><time datetime={dateTime(date)}>{date}</time> {link ? <a href={link}>{text}</a> : <span>{text}</span>}</li>
             ))}
@@ -35,7 +35,20 @@ const rest = items.slice(6);
 )}
 
 <style>
-  li { display: grid; grid-template-columns: 5rem minmax(0, 1fr); }
+  .news-list { row-gap: .75rem; }
+
+  li {
+    display: grid;
+    grid-template-columns: 5rem minmax(0, 1fr);
+    align-items: baseline;
+  }
+
+  time {
+    color: var(--muted);
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: .8125rem;
+  }
+
   summary {
     inline-size: fit-content;
     margin-block: .6rem;
