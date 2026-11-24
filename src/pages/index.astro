@@ -21,7 +21,8 @@ const name = fullName(profile);
 const photo = resolveImage(profile.photo.image);
 const links = socialLinks(profile);
 const footerLinks = links.filter(({ key }) => key === 'github' || key === 'youtube');
-const statementParts = profile.statement.split(/(로봇 제어[가-힣]*|온디바이스 AI[가-힣]*)/u);
+const robotClausePrefix = '이를 ';
+const statementParts = profile.statement.split(/((?:이를 )?로봇 제어[가-힣]*|온디바이스 AI[가-힣]*)/u);
 const introParts = profile.intro?.split(/(RECS Lab|\s+)/u);
 const updated = formatBuildDate(new Date());
 const news = (newsFeed?.data.items ?? []).toSorted((a, b) => b.date.localeCompare(a.date));
@@ -44,9 +45,13 @@ const structuredData = JSON.stringify(person).replaceAll('<', '\\u003c');
     <header class="hero">
       <div class="hero-copy">
         <h1>{profile.name_ko} <span lang="en">{profile.name_en}</span></h1>
-        <p class="statement">{statementParts.map((part, index) =>
-          index % 2 ? <span class="statement-phrase">{part}</span> : part
-        )}</p>
+        <p class="statement">{statementParts.map((part, index) => {
+          if (index % 2 === 0) return part;
+          if (part.startsWith(robotClausePrefix)) {
+            return <span class="statement-clause">{robotClausePrefix}<span class="statement-phrase">{part.slice(robotClausePrefix.length)}</span></span>;
+          }
+          return <span class="statement-phrase">{part}</span>;
+        })}</p>
         <p class="affiliation">
           <span class="affiliation-school">{profile.position}</span>
           <span class="affiliation-divider" aria-hidden="true"> · </span>
@@ -75,7 +80,7 @@ const structuredData = JSON.stringify(person).replaceAll('<', '\\u003c');
               loading="lazy"
             />
             <p class="about-text">{introParts.map((part) => (
-              part === 'RECS Lab' ? <a href={profile.lab.url}>{part}</a> :
+              part === 'RECS Lab' ? <a class="lab-link" href={profile.lab.url}>{part}</a> :
               part.startsWith(profile.company) ? <span class="company-word">{part}</span> : part
             ))}</p>
           </div>
@@ -99,19 +104,18 @@ const structuredData = JSON.stringify(person).replaceAll('<', '\\u003c');
   const threshold = 0.15;
 
   if (sections.length && 'IntersectionObserver' in window && matchMedia('(prefers-reduced-motion: no-preference)').matches) {
-    const aboutSection = document.getElementById('about')?.closest(sectionSelector);
-    const aboutBounds = aboutSection?.getBoundingClientRect();
-    const aboutVisibleOnLoad = window.scrollY === 0 && aboutBounds
-      && aboutBounds.top < window.innerHeight && aboutBounds.bottom > 0;
+    const viewportHeight = window.innerHeight;
+    const initiallyVisible = Array.from(sections).filter((section) => {
+      const { top, bottom } = section.getBoundingClientRect();
+      return top < viewportHeight && bottom > 0;
+    });
 
     const observer = new IntersectionObserver((entries) => {
       for (const entry of entries) {
         // Keep a section readable if it is too tall for 15% of it to fit on screen.
         const tooTall = entry.rootBounds && entry.boundingClientRect.height * threshold > entry.rootBounds.height;
 
-        const initialAbout = aboutVisibleOnLoad && entry.target === aboutSection;
-
-        if (entry.intersectionRatio >= threshold || tooTall || initialAbout) {
+        if (entry.intersectionRatio >= threshold || tooTall) {
           reveal(entry.target);
         }
       }
@@ -122,8 +126,11 @@ const structuredData = JSON.stringify(person).replaceAll('<', '\\u003c');
       observer.unobserve(section);
     }
 
+    for (const section of initiallyVisible) {
+      section.setAttribute('data-revealed', '');
+    }
     for (const section of sections) {
-      observer.observe(section);
+      if (!section.hasAttribute('data-revealed')) observer.observe(section);
     }
 
     document.addEventListener('focusin', (event) => {
@@ -185,7 +192,9 @@ const structuredData = JSON.stringify(person).replaceAll('<', '\\u003c');
   }
 
   .company-word,
-  .statement-phrase { white-space: nowrap; }
+  .statement-clause,
+  .statement-phrase,
+  .lab-link { white-space: nowrap; }
 
   .sections {
     display: grid;
@@ -237,6 +246,8 @@ const structuredData = JSON.stringify(person).replaceAll('<', '\\u003c');
     .affiliation .company-word { display: block; }
 
     .affiliation-divider { display: none; }
+
+    .statement-clause { white-space: normal; }
 
     .about-content {
       grid-template-columns: minmax(0, 1fr);

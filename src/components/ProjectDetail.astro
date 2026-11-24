@@ -129,6 +129,7 @@ const heroImage = hero?.image && resolveImage(hero.image.image);
 
   h1 {
     font-size: var(--fs-statement);
+    font-weight: 600;
     line-height: 1.5;
   }
 
@@ -156,6 +157,8 @@ const heroImage = hero?.image && resolveImage(hero.image.image);
 
   .period {
     font-size: var(--fs-meta);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
   }
 
   dd:not(.period),

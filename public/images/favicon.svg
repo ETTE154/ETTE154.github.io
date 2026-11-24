@@ -1,13 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-labelledby="title">
   <metadata><![CDATA[Embedded font license
-© 2014-2021 Adobe (http://www.adobe.com/), with Reserved Font Name 'Source'.
+Copyright (c) 2021, Kil Hyung-jin (https://github.com/orioncactus/pretendard),
+with Reserved Font Name Pretendard.
 
 This Font Software is licensed under the SIL Open Font License, Version 1.1.
 This license is copied below, and is also available with a FAQ at:
-http://scripts.sil.org/OFL
+https://scripts.sil.org/OFL
 
 
+-----------------------------------------------------------
 SIL OPEN FONT LICENSE Version 1.1 - 26 February 2007
+-----------------------------------------------------------
 
 PREAMBLE
 The goals of the Open Font License (OFL) are to stimulate worldwide
@@ -94,9 +97,9 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
   ]]></metadata>
   <title id="title">전</title>
   <style>
-    @font-face { font-family: PortfolioInitial; src: url(data:font/woff2;base64,d09GMgABAAAAAAMIABAAAAAABagAAAKtAAIKPQAAAAAAAAAAAAAAAAAAAAAAAAAAGyAcSAZgP1NUQVQyADQRCAqBFIEiATYCJAMICwYABCAFg3gHIBckGAYbmwQgrgd4wwn1izWEaMTSJd1M1/BMbFNPMcfHn0o8vA7b+21vLsb2BCHnEHIrJMHhCJIgFEYSNPEYgefi8edD+7n3Z0Ciih1qn2Emk9v8PhOrWCaJJRKN6lktEaIL8d+tfb6kZqkJjLsSunRBRE+GW+0G+KOuVobdNfh//zf1wNKFvwPwxrZPYbqAN8WFkkXR9ijwyHqBydZtMoVdCYrCrKdVBZpWhOCOTurb4a3ALIBA05FKXpKmxOWxmpC5rdQYwlEwLejhAwX7K+ys6JphkPNX2yQlvbducBntcYtPBaRWIpmwd/uztAn4kex08dMsKG8hgIC0LroBG2RCqAuMcVgJnrfOzvkgSRC19A3pHfIGgISMMbHAmMQGKIrgR/Lft8v6RUCIWQyEBApq2AL7AAqgVrCs0y7PLTSvWpLmfQ/d3NK8a+G12jv3r5Ny6bP/He1XuA6us4P2Qse18XqqZ3JZPUZP5MTHBL8ptztryersCS7Rj7bmyxv8O5LWDLmZCYb+zmq/Yk1HEBvJmG47sz/dJ7CHQ2pu+9/2Hg/55r96V54Cv6sRAP7iH0LkqypyBahKIMjTl91IAqqNFRy30yHqmhVJki1eNQFdTS/EojTwAUYMC2Yx6frEbM92uciw4sKfWLWWajesS4Y19Xjo09CORysQvFRp5JJo81hElFATKFFELB07uxG5UhRwAS+ZQiaZreJfmKWIk4hw0bPTIVpRNpSVE6VGVBIwdkQjBTOKiNFG4GClQsVI1khgJyDaKDA2RJ1WrSgtBxMFK16yVKnk8pQoV6pJ3rpOlfEk7XT0mFiiFN0VOlFWNnoChlypMOLJpRWpBf50pEqTLlUeRsAksaJMKAUb+uxhSwlM1LpQelo6dmJgBi/XiD64/z/kqQQptQYCAMR3dTYBAAA=) format("woff2"); }
-    text { fill: #111; font-family: PortfolioInitial, "Noto Sans KR", "Malgun Gothic", sans-serif; }
+    @font-face { font-family: PortfolioInitial; src: url(data:font/woff2;base64,d09GMgABAAAAAAKQAA0AAAAABNQAAAI6AAFPGgAAAAAAAAAAAAAAAAAAAAAAAAAAGyAcKgZgP1NUQVREADQKgRiBKAE2AiQDCAsGAAQgBYMQByAb+wMgjoTcROvNRRRfDBFAclXVPT1YITpyznYGRufoHL0iRZIy4ehmY1EcHsiLZG9R8Vj/u7EQEo8Sitf/3dSz4w92a4LHFoYTLAo4wQSPqPV8cWCBhZxbYDs6or5RTKlLBZRqpIkwcvTEmQIJ/v8fEFCqjXYikhZuXLZzswjcBim/Kz4uS7Z7egVXSyu+6FQ8vR8ZRAkCAEbMnDXD+Vx6LuVv/FeLPzz8ggBpcPYumikXBAUR9SJaiXvWrN0ZsG7nso2hRpBUCxDK4uPICKIIAojIoF5GQL2kGZIk8Fz6/38d3+dfARBEkJBHEWMZIAHyKaeXl6cD5aFiX+mBsn21Zt3e8kzFp++9NXP2uyIhlHm7mzXznXc+aP9kRbVZs+DJJx549YH8iQX/yXb7L15/f/XKV4OH7vXreX9rj+ebu31PvHyu01MPLPlo/+7XdvfQC1559M6p4qHnb/b67ONNLY+9r+5d3/B++SMwlIkwpQH+OP/AkqqBvxbsAvh80+Kz8G2H3x9R/L/NLc0tZ8iLIPD4XoGik8AIk90ZC1zK/aAoICrKgyBqIoeVDECpw2whlWAgJoMWBsqoYLHMKFqdTTJrsIsip4PXokC5v8oyoz7VUKM85IygaLsB0epMwD3NdNdVdz00MwHBgbF2M6mFrEdICWUwaSgcoYBxJGJC5LiYwlVwAQGpGkbkCAl001kPXfUzwBjcTuuMQA+ddS+hnR7J3fXS3rIhxwhl+dktNgGvESUb+O8/pyQAAAA=) format("woff2"); }
+    text { fill: #111; font-family: PortfolioInitial, "Malgun Gothic", sans-serif; }
     @media (prefers-color-scheme: dark) { text { fill: #e8e8e8; } }
   </style>
-  <text x="4.97" y="25.66" font-size="25.29">전</text>
+  <text x="5.22" y="25.53" font-size="26.35">전</text>
 </svg>

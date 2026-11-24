@@ -15,7 +15,7 @@
   --fs-sub: 1rem;
   --fs-meta: .9375rem;
   --font-mono: ui-monospace, monospace;
-  font-family: 'Noto Sans KR Variable', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+  font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
   font-synthesis: none;
   line-height: 1.75;
   color: var(--text);
@@ -36,6 +36,7 @@
 body {
   margin: 0;
   font-size: var(--fs-body);
+  font-weight: 400;
   letter-spacing: 0;
   word-break: keep-all;
 }
