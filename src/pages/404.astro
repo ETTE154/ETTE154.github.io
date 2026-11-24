@@ -1,0 +1,18 @@
+---
+import Base from '../layouts/Base.astro';
+import { ko } from '../i18n/ko';
+import { getProfile } from '../lib/profile';
+
+const profile = await getProfile();
+---
+<Base profile={profile} title={ko.notFound} description={ko.notFound} noindex>
+  <main class="site-width missing">
+    <h1>{ko.notFound}</h1>
+    <p><a href="/">{ko.home}</a></p>
+  </main>
+</Base>
+
+<style>
+  .missing { padding-block-start: 5rem; }
+  h1 { font-size: 1.5rem; }
+</style>

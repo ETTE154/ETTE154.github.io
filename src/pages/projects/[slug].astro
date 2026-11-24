@@ -1,0 +1,24 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import ProjectDetail from '../../components/ProjectDetail.astro';
+import { getProfile } from '../../lib/profile';
+import { getPublicProjects } from '../../lib/projects';
+
+export async function getStaticPaths() {
+  const projects = (await getPublicProjects()).filter(({ has_detail }) => has_detail);
+  return projects.map((project) => ({ params: { slug: project.slug }, props: { project } }));
+}
+
+interface Props {
+  project: CollectionEntry<'projects'>['data'];
+}
+
+const { project } = Astro.props;
+const profile = await getProfile();
+---
+<Base profile={profile} title={project.title} description={project.summary}>
+  <main class="site-width">
+    <ProjectDetail project={project} />
+  </main>
+</Base>

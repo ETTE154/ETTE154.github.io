@@ -1,0 +1,47 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { ko } from '../i18n/ko';
+import { dateTime } from '../lib/profile';
+
+interface Props {
+  items: CollectionEntry<'news'>['data']['items'];
+}
+
+const { items } = Astro.props;
+const first = items.slice(0, 6);
+const rest = items.slice(6);
+---
+{items.length > 0 && (
+  <section class="section-row" aria-labelledby="news">
+    <h2 class="section-title" id="news">{ko.sections.news}</h2>
+    <div>
+      <ul class="row-list">
+        {first.map(({ date, text, link }) => (
+          <li><time datetime={dateTime(date)}>{date}</time> {link ? <a href={link}>{text}</a> : <span>{text}</span>}</li>
+        ))}
+      </ul>
+      {rest.length > 0 && (
+        <details>
+          <summary><span>{ko.allNews}</span><span>{ko.lessNews}</span></summary>
+          <ul class="row-list">
+            {rest.map(({ date, text, link }) => (
+              <li><time datetime={dateTime(date)}>{date}</time> {link ? <a href={link}>{text}</a> : <span>{text}</span>}</li>
+            ))}
+          </ul>
+        </details>
+      )}
+    </div>
+  </section>
+)}
+
+<style>
+  li { display: grid; grid-template-columns: 5rem minmax(0, 1fr); }
+  summary {
+    inline-size: fit-content;
+    margin-block: .6rem;
+    color: var(--accent);
+    cursor: pointer;
+  }
+  details[open] summary span:first-child,
+  details:not([open]) summary span:last-child { display: none; }
+</style>

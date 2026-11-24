@@ -1,0 +1,123 @@
+---
+import { getImage, Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import { ko } from '../i18n/ko';
+
+interface Props {
+  image?: ImageMetadata;
+  alt?: string;
+  width: number;
+  height?: number;
+  video?: string;
+  captions?: string;
+  mode?: 'image' | 'hover' | 'controls';
+  priority?: boolean;
+}
+
+const { image, alt = '', width, height, video, captions, mode = 'image', priority = false } = Astro.props;
+const imageWidth = image && Math.min(image.width, width);
+const imageHeight = height && imageWidth ? Math.max(1, Math.round(height * imageWidth / width)) : undefined;
+const showVideo = mode === 'controls' && video;
+const showHoverVideo = mode === 'hover' && image && video;
+const poster = showVideo && image ? await getImage({
+  src: image,
+  width: imageWidth,
+  height: imageHeight,
+  fit: imageHeight ? 'cover' : undefined,
+  format: 'webp',
+}) : undefined;
+---
+
+{showVideo ? (
+  <video
+    controls
+    preload="metadata"
+    poster={poster?.src}
+    width={poster?.attributes.width}
+    height={poster?.attributes.height}
+    aria-label={alt || undefined}
+  >
+    <source src={video} />
+    {captions && <track kind="captions" label={ko.project.videoCaptions} src={captions} srclang="ko" />}
+  </video>
+) : image && (
+  <div class="media" data-hover-video={showHoverVideo ? '' : undefined}>
+    <Image
+      src={image}
+      alt={alt}
+      width={imageWidth}
+      height={imageHeight}
+      fit={imageHeight ? 'cover' : undefined}
+      format="webp"
+      loading={priority ? 'eager' : 'lazy'}
+      decoding={priority ? 'sync' : 'async'}
+      fetchpriority={priority ? 'high' : undefined}
+    />
+    {showHoverVideo && (
+      <Fragment>
+      <video data-video-src={video} muted loop playsinline preload="none" aria-hidden="true"></video>
+      <script is:inline>
+        {
+          const media = document.currentScript.parentElement;
+          const video = media.querySelector('video');
+          const allowMotion = matchMedia('(hover: hover) and (prefers-reduced-motion: no-preference)');
+
+          const stop = () => {
+            video.pause();
+            media.classList.remove('is-playing');
+          };
+
+          media.addEventListener('pointerenter', async (event) => {
+            if (!allowMotion.matches || event.pointerType === 'touch') return;
+            if (!video.getAttribute('src')) video.src = video.dataset.videoSrc;
+            try {
+              await video.play();
+              if (!video.paused) media.classList.add('is-playing');
+            } catch {
+              stop();
+            }
+          });
+
+          media.addEventListener('pointerleave', stop);
+          allowMotion.addEventListener('change', () => {
+            if (!allowMotion.matches) stop();
+          });
+        }
+      </script>
+      </Fragment>
+    )}
+  </div>
+)}
+
+<style>
+  .media {
+    position: relative;
+  }
+
+  img,
+  video {
+    display: block;
+    max-inline-size: 100%;
+    block-size: auto;
+  }
+
+  video[controls] {
+    inline-size: 100%;
+  }
+
+  [data-hover-video] video {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .is-playing video {
+      visibility: visible;
+    }
+  }
+</style>

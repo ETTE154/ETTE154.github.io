@@ -1,0 +1,53 @@
+---
+import { getEntry } from 'astro:content';
+import { z } from 'astro/zod';
+import type { GetStaticPaths } from 'astro';
+import type { ComponentProps } from 'astro/types';
+import PublicationList from '../../components/PublicationList.astro';
+import ProjectDetail from '../../components/ProjectDetail.astro';
+import { ko } from '../../i18n/ko';
+import Base from '../../layouts/Base.astro';
+import { publicationSchema } from '../../lib/publication-schema';
+
+export const getStaticPaths = (async () => {
+  if (!import.meta.env.DEV) return [];
+
+  const [publications, project] = await Promise.all([
+    import('../../content/_samples/publications.md'),
+    import('../../content/_samples/project.md'),
+  ]);
+  const samplePublications = z.array(publicationSchema.extend({
+    year: z.union([publicationSchema.shape.year, z.string().regex(/^\[TODO: .+\]$/u)]),
+  })).parse(publications.frontmatter.items);
+
+  return [
+    {
+      params: { template: 'publications' },
+      props: { kind: 'publications' as const, items: samplePublications },
+    },
+    {
+      params: { template: 'project' },
+      props: { kind: 'project' as const, project: project.frontmatter as ComponentProps<typeof ProjectDetail>['project'] },
+    },
+  ];
+}) satisfies GetStaticPaths;
+
+const profile = (await getEntry('profile', 'profile'))!.data;
+const props = Astro.props;
+---
+
+<Base {profile} title={props.kind === 'publications' ? ko.sections.publications : ko.sections.projects} noindex>
+  <main class="site-width preview">
+    {props.kind === 'publications' ? (
+      <PublicationList items={props.items} nameKo={profile.name_ko} nameEn={profile.name_en} headingLevel="h1" />
+    ) : (
+      <ProjectDetail project={props.project} />
+    )}
+  </main>
+</Base>
+
+<style>
+  .preview {
+    padding-block: 2rem;
+  }
+</style>

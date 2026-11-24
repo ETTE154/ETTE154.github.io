@@ -1,0 +1,57 @@
+---
+import { getImage } from 'astro:assets';
+import { ko } from '../i18n/ko';
+import { resolveImage } from '../lib/images';
+import { fullName, type Profile } from '../lib/profile';
+import '@fontsource-variable/noto-sans-kr';
+import '../styles/global.css';
+
+interface Props {
+  profile: Profile;
+  title?: string;
+  description?: string;
+  noindex?: boolean;
+}
+
+const { profile, title, description = profile.description, noindex = false } = Astro.props;
+const name = fullName(profile);
+const pageTitle = title ? `${title} | ${name}` : `${name} | ${profile.position}`;
+const site = Astro.site!;
+const canonical = new URL(Astro.url.pathname, site);
+const photo = resolveImage(profile.photo.image);
+const icon = await getImage({ src: photo, width: 32, height: 32, fit: 'cover', format: 'png' });
+const og = noindex ? null : await getImage({ src: photo, width: Math.min(640, photo.width), format: 'jpeg' });
+---
+<!doctype html>
+<html lang={ko.language}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="description" content={description} />
+    <title>{pageTitle}</title>
+    <link rel="icon" href={icon.src} type="image/png" sizes="32x32" />
+    {noindex ? <meta name="robots" content="noindex" /> : (
+      <>
+        <link rel="canonical" href={canonical} />
+        <meta property="og:type" content="website" />
+        <meta property="og:locale" content={ko.locale} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content={canonical} />
+        {og && (
+          <>
+            <meta property="og:image" content={new URL(og.src, site)} />
+            <meta property="og:image:alt" content={profile.photo.alt} />
+            <meta property="og:image:width" content={og.attributes.width} />
+            <meta property="og:image:height" content={og.attributes.height} />
+          </>
+        )}
+        {profile.verification?.naver && <meta name="naver-site-verification" content={profile.verification.naver} />}
+        {profile.verification?.google && <meta name="google-site-verification" content={profile.verification.google} />}
+      </>
+    )}
+    <slot name="head" />
+  </head>
+  <body><slot /></body>
+</html>

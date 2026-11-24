@@ -1,0 +1,24 @@
+name_ko: 전채욱
+name_en: Chae-Uk Jeon
+university: 동의대학교
+position: 동의대학교 인공지능학과 박사과정
+company: ㈜로이브
+lab:
+  name: RECS Lab · 로봇·임베디드 제어시스템 연구실
+  url: https://recs-lab.kr
+links:
+  github: https://github.com/ETTE154
+  youtube: https://www.youtube.com/@ChaeUkJeon
+verification:
+  naver:
+  google:
+photo:
+  image: chae-uk-jeon.jpeg
+  alt: 전채욱 (Chae-Uk Jeon) 프로필 사진
+intro: >-
+  LLM–하드웨어 공동설계와 온디바이스 AI를 연구합니다.
+  연구 분야에는 NPU(신경망 처리 장치) 가속과 로봇 제어 시스템도 포함됩니다.
+  ㈜로이브를 창업했고 CTO를 맡고 있습니다.
+description: >-
+  동의대학교 인공지능학과 박사과정.
+  LLM–하드웨어 공동설계, 온디바이스 AI, NPU(신경망 처리 장치) 가속, 로봇 제어 시스템 연구.

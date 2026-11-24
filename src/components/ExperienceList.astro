@@ -1,0 +1,51 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { ko } from '../i18n/ko';
+import { dateTime } from '../lib/profile';
+
+interface Props {
+  heading: string;
+  id: string;
+  items: CollectionEntry<'experience'>['data'][];
+}
+
+const { heading, id, items } = Astro.props;
+---
+{items.length > 0 && (
+  <section class="section-row" aria-labelledby={id}>
+    <h2 class="section-title" id={id}>{heading}</h2>
+    <ul class="row-list">
+      {items.map(({ period_start, period_end, org, role, url }) => (
+        <li class="experience-row">
+          <span class="period">
+            <time datetime={dateTime(period_start)}>{period_start}</time>
+            <span aria-hidden="true"> – </span>
+            {period_end ? <time datetime={dateTime(period_end)}>{period_end}</time> : ko.current}
+          </span>
+          <span class="organization">{url ? <a href={url}>{org}</a> : org}</span>
+          <span>{role}</span>
+        </li>
+      ))}
+    </ul>
+  </section>
+)}
+
+<style>
+  .experience-row {
+    display: grid;
+    grid-template-columns: 10rem minmax(5rem, .8fr) minmax(0, 1.25fr);
+    column-gap: .6rem;
+    align-items: baseline;
+  }
+  .period { color: var(--muted); white-space: nowrap; }
+  .organization { font-weight: 600; }
+
+  @media (max-width: 38rem) {
+    .experience-row { grid-template-columns: 7.5rem auto minmax(0, 1fr); column-gap: .55rem; }
+  }
+
+  @media (max-width: 22rem) {
+    .experience-row { grid-template-columns: 1fr auto; }
+    .period { grid-column: 1 / -1; }
+  }
+</style>

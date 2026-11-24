@@ -1,0 +1,187 @@
+---
+import Bibtex from './Bibtex.astro';
+import ProjectMedia from './ProjectMedia.astro';
+import { ko } from '../i18n/ko';
+import { resolveImage } from '../lib/images';
+import type { Publication } from '../lib/publication-schema';
+
+const groups = ['international', 'domestic', 'conference'] as const;
+const linkKinds = ['pdf', 'code', 'video', 'project'] as const;
+
+interface Props {
+  items: Array<Omit<Publication, 'year'> & { year: number | string }>;
+  nameKo: string;
+  nameEn: string;
+  headingLevel?: 'h1' | 'h2';
+}
+
+const { items, nameKo, nameEn, headingLevel: Heading = 'h2' } = Astro.props;
+const GroupHeading = Heading === 'h1' ? 'h2' : 'h3';
+const entries = items
+  .filter(({ status }) => status === 'published' || status === 'accepted')
+  .sort((older, newer) => Number(newer.year) - Number(older.year));
+
+const markedAuthors = entries.flatMap(({ authors }) => authors);
+const endsWithMark = (author: string, mark: string) =>
+  (author.match(/[*†]+\s*$/u)?.[0] ?? '').includes(mark);
+const hasFirstAuthor = markedAuthors.some((author) => endsWithMark(author, '*'));
+const hasCorrespondingAuthor = markedAuthors.some((author) => endsWithMark(author, '†'));
+const isOwner = (author: string) => {
+  const name = author.replace(/[*†]+\s*$/u, '').trim();
+  return name === nameKo || name === nameEn;
+};
+---
+
+{entries.length > 0 && (
+  <section aria-labelledby="publications-heading">
+    <Heading id="publications-heading" class="section-title">{ko.sections.publications}</Heading>
+    {groups.map((group) => {
+      const groupItems = entries.filter((entry) => entry.group === group);
+      return groupItems.length > 0 && (
+        <section class="publication-group">
+          <GroupHeading>{ko.publications[group]}</GroupHeading>
+          <ul class="publications">
+            {groupItems.map((entry) => {
+              const links = linkKinds.flatMap((kind) => {
+                const href = entry.links?.[kind];
+                return href ? [{ href, label: ko.publications[kind] }] : [];
+              });
+              return (
+                <li id={entry.id} class:list={['publication', { 'with-media': entry.thumbnail }]}>
+                  {entry.thumbnail && (
+                    <ProjectMedia
+                      image={resolveImage(entry.thumbnail.image)}
+                      alt={entry.thumbnail.alt}
+                      width={320}
+                      video={entry.video}
+                      mode="hover"
+                    />
+                  )}
+                  <div class="publication-body">
+                    <p class="title">
+                      <strong>{entry.title}</strong>
+                      {entry.status === 'accepted' && <span class="status">{ko.publications.accepted}</span>}
+                    </p>
+                    <p class="authors">
+                      {entry.authors.map((author, index) => (
+                        <Fragment>{index > 0 && ', '}{isOwner(author) ? <strong>{author}</strong> : author}</Fragment>
+                      ))}
+                    </p>
+                    <p class="venue">{entry.venue}{' · '}{entry.year}</p>
+                    {(links.length > 0 || entry.bibtex) && (
+                      <div class="references">
+                        {links.map(({ href, label }, index) => (
+                          <Fragment>
+                            {index > 0 && <span class="separator" aria-hidden="true">·</span>}
+                            <a href={href}>{label}</a>
+                          </Fragment>
+                        ))}
+                        {entry.bibtex && links.length > 0 && <span class="bibtex-separator separator" aria-hidden="true">·</span>}
+                        {entry.bibtex && <Bibtex value={entry.bibtex} />}
+                      </div>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      );
+    })}
+    {(hasFirstAuthor || hasCorrespondingAuthor) && (
+      <p class="legend">
+        {[
+          hasFirstAuthor && `* ${ko.publications.firstAuthor}`,
+          hasCorrespondingAuthor && `† ${ko.publications.correspondingAuthor}`,
+        ].filter(Boolean).join(' · ')}
+      </p>
+    )}
+  </section>
+)}
+
+<style>
+  .publication-group {
+    margin-block: 1.5rem;
+  }
+
+  .publication-group h2,
+  .publication-group h3 {
+    margin-block: 0 0.5rem;
+    font-size: 1.125rem;
+  }
+
+  .publications {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .publication {
+    padding-block: 1rem;
+    border-block-start: 1px solid var(--line);
+  }
+
+  .publication:last-child {
+    border-block-end: 1px solid var(--line);
+  }
+
+  .publication.with-media {
+    display: grid;
+    grid-template-columns: minmax(4rem, 8rem) minmax(0, 1fr);
+    align-items: start;
+    gap: 1rem;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  .title {
+    overflow-wrap: anywhere;
+  }
+
+  .status {
+    margin-inline-start: 0.5rem;
+  }
+
+  .authors,
+  .venue,
+  .status,
+  .legend {
+    color: var(--muted);
+  }
+
+  .references {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 0.4rem;
+    margin-block-start: 0.25rem;
+  }
+
+  .separator {
+    color: var(--muted);
+  }
+
+  .references :global(details) {
+    margin-block: 0;
+  }
+
+  .references :global(details[open]) {
+    flex: 0 0 100%;
+  }
+
+  .references:has(:global(details[open])) .bibtex-separator {
+    display: none;
+  }
+
+  .legend {
+    font-size: 0.875rem;
+  }
+
+  @media (max-width: 36rem) {
+    .publication.with-media {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

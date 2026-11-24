@@ -1,0 +1,89 @@
+---
+import { ko } from '../i18n/ko';
+
+interface Props {
+  value: string;
+}
+
+const { value } = Astro.props;
+---
+
+<details class="citation" data-bibtex>
+  <summary>{ko.publications.bibtex}</summary>
+  <pre><code>{value}</code></pre>
+  <button
+    type="button"
+    data-copied={ko.publications.copied}
+    data-copy-failed={ko.publications.copyFailed}
+  >{ko.publications.copy}</button>
+  <span class="copy-status" role="status"></span>
+</details>
+
+<script>
+  for (const citation of document.querySelectorAll('[data-bibtex]')) {
+    const button = citation.querySelector('button');
+    const code = citation.querySelector('code');
+    const status = citation.querySelector('[role="status"]');
+    if (!button || !code || !status) continue;
+
+    const copyLabel = button.textContent ?? '';
+    let timer: number;
+    let attempt = 0;
+
+    button.addEventListener('click', async () => {
+      const currentAttempt = ++attempt;
+      window.clearTimeout(timer);
+      let feedback = button.dataset.copyFailed;
+
+      try {
+        await navigator.clipboard.writeText(code.textContent ?? '');
+        feedback = button.dataset.copied;
+      } catch {
+        // The disclosed citation stays available for manual copying.
+      }
+
+      if (currentAttempt !== attempt) return;
+      button.textContent = feedback ?? copyLabel;
+      status.textContent = feedback ?? '';
+      timer = window.setTimeout(() => {
+        button.textContent = copyLabel;
+        status.textContent = '';
+      }, 2000);
+    });
+  }
+</script>
+
+<style>
+  .citation {
+    margin-block: 0.5rem;
+  }
+
+  summary {
+    cursor: pointer;
+    inline-size: fit-content;
+  }
+
+  pre {
+    max-inline-size: 100%;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  button {
+    padding: 0.25rem 0.65rem;
+    color: inherit;
+    background: none;
+    border: 1px solid currentColor;
+    border-radius: 0;
+    font: inherit;
+    cursor: pointer;
+  }
+
+  .copy-status {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+</style>

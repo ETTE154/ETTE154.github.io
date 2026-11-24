@@ -1,0 +1,235 @@
+---
+import { Image } from 'astro:assets';
+import { getCollection, getEntry } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import NewsList from '../components/NewsList.astro';
+import ExperienceList from '../components/ExperienceList.astro';
+import ProjectMedia from '../components/ProjectMedia.astro';
+import { ko } from '../i18n/ko';
+import { resolveImage } from '../lib/images';
+import { dateTime, formatBuildDate, fullName, getProfile, socialLinks } from '../lib/profile';
+
+import { getPublicProjects, projectPath } from '../lib/projects';
+
+const [profile, newsFeed, projects, experienceEntries] = await Promise.all([
+  getProfile(),
+  getEntry('news', 'feed'),
+  getPublicProjects(),
+  getCollection('experience'),
+]);
+const name = fullName(profile);
+const photo = resolveImage(profile.photo.image);
+const links = socialLinks(profile);
+const introParts = profile.intro?.split(/(\s+)/u);
+const updated = formatBuildDate(new Date());
+const news = (newsFeed?.data.items ?? []).sort((a, b) => b.date.localeCompare(a.date));
+const experience = experienceEntries.map(({ data }) => data).sort((a, b) => b.period_start.localeCompare(a.period_start));
+const person = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: profile.name_ko,
+  alternateName: profile.name_en,
+  url: Astro.site!.href,
+  affiliation: { '@type': 'CollegeOrUniversity', name: profile.university },
+  worksFor: { '@type': 'Organization', name: profile.company },
+  sameAs: links.map(({ url }) => url),
+};
+const structuredData = JSON.stringify(person).replaceAll('<', '\\u003c');
+---
+<Base profile={profile}>
+  <script slot="head" type="application/ld+json" set:html={structuredData} />
+  <main class="site-width">
+    <header class="profile">
+      <h1>{profile.name_ko} <span lang="en">{profile.name_en}</span></h1>
+      <div class="affiliations">
+        <p>{profile.position}</p>
+        <p><a href={profile.lab.url}>{profile.lab.name}</a></p>
+        {links.length > 0 && (
+          <ul class="social">
+            {links.map(({ label, url }, index) => (
+              <li>
+                {index > 0 && <span aria-hidden="true"> / </span>}
+                <a lang="en" href={url}>{label}</a>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+      <Image
+        class="portrait"
+        src={photo}
+        alt={profile.photo.alt}
+        width={160}
+        height={160}
+        densities={['1.5x']}
+        fit="cover"
+        format="webp"
+        loading="eager"
+        fetchpriority="high"
+      />
+    </header>
+
+    {introParts && (
+      <p class="intro">{introParts.map((part) =>
+        part.startsWith(profile.company) ? <span class="company-word">{part}</span> : part
+      )}</p>
+    )}
+
+    <NewsList items={news} />
+
+    {projects.length > 0 && (
+      <section class="section-row" aria-labelledby="projects">
+        <h2 class="section-title" id="projects">{ko.sections.projects}</h2>
+        <ul class="row-list">
+          {projects.map((project) => (
+            <li class="project-row">
+              {project.thumbnail && (
+                <div class="project-photo">
+                  <ProjectMedia
+                    image={resolveImage(project.thumbnail.image)}
+                    alt={project.thumbnail.alt}
+                    width={108}
+                    height={72}
+                    video={project.video}
+                    mode="hover"
+                  />
+                </div>
+              )}
+              <div>
+                <h3>{project.has_detail ? <a href={projectPath(project.slug)}>{project.title}</a> : project.title}</h3>
+                <p>{project.summary}</p>
+              </div>
+              <time datetime={dateTime(project.period)}>{project.period}</time>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+
+    <ExperienceList heading={ko.sections.experience} id="experience" items={experience.filter(({ type }) => type === 'position')} />
+    <ExperienceList heading={ko.sections.education} id="education" items={experience.filter(({ type }) => type === 'education')} />
+  </main>
+  <footer class="site-width">
+    <span>© {name}</span>
+    <span class="footer-divider" aria-hidden="true">·</span>
+    <span>{ko.updated} <time datetime={dateTime(updated)}>{updated}</time></span>
+  </footer>
+</Base>
+
+<style>
+  .profile {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto 1fr;
+    column-gap: clamp(1rem, 4vw, 3rem);
+    row-gap: .74rem;
+    align-items: start;
+    padding-block-start: clamp(2.5rem, 7vw, 5rem);
+  }
+
+  h1 {
+    display: flex;
+    align-items: baseline;
+    gap: .8rem;
+    margin: 0;
+    color: var(--text);
+    font-size: clamp(2.5rem, 1.95rem + 2.4vw, 3.65rem);
+    font-weight: 750;
+    line-height: 1.16;
+    letter-spacing: -.055em;
+  }
+
+  h1 span {
+    color: var(--muted);
+    font-size: clamp(1.05rem, .9rem + .5vw, 1.35rem);
+    font-weight: 450;
+    letter-spacing: 0;
+  }
+
+  .affiliations { align-self: end; }
+  .affiliations p { margin: 0; }
+  .affiliations p + p { margin-block-start: .1rem; }
+
+  .social {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: .38rem;
+    row-gap: .05rem;
+    margin: .76rem 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: .875rem;
+  }
+
+  .social li { white-space: nowrap; }
+  .social span { margin-inline-end: .25rem; color: var(--muted); }
+
+  .portrait {
+    grid-area: 1 / 2 / 3;
+    inline-size: 10rem;
+    block-size: 10rem;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 3px;
+  }
+
+  .intro {
+    max-inline-size: 43rem;
+    margin: clamp(1.9rem, 4vw, 2.5rem) 0 clamp(1.8rem, 4vw, 2.6rem);
+    font-size: 1rem;
+    line-height: 1.85;
+  }
+
+  .company-word { white-space: nowrap; }
+
+  .profile + :not(.intro) { margin-block-start: 2rem; }
+
+  .project-row {
+    display: flex;
+    align-items: flex-start;
+    gap: .85rem;
+  }
+
+  .project-row h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.5;
+  }
+
+  .project-row p { margin: .2rem 0 0; color: var(--muted); }
+  .project-row time { margin-inline-start: auto; }
+  .project-photo {
+    flex: 0 0 auto;
+    inline-size: 6.75rem;
+    aspect-ratio: 3 / 2;
+    overflow: hidden;
+    border-radius: 3px;
+  }
+
+  .project-photo :global(.media),
+  .project-photo :global(img) { inline-size: 100%; block-size: 100%; object-fit: cover; }
+
+  footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: .2rem .55rem;
+    border-block-start: 1px solid var(--line);
+    padding-block: 1.4rem 2.7rem;
+    color: var(--muted);
+    font-size: .83rem;
+  }
+
+  @media (max-width: 38rem) {
+    .profile { row-gap: 1rem; }
+    h1 { grid-column: 1 / -1; }
+    .portrait { grid-area: 2 / 2; }
+    .affiliations { align-self: center; }
+  }
+
+  @media (max-width: 22rem) {
+    .portrait { inline-size: 7.25rem; block-size: 7.25rem; }
+    h1 { gap: .55rem; }
+  }
+</style>
