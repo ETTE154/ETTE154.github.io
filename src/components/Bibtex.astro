@@ -58,9 +58,20 @@ const { value } = Astro.props;
     margin-block: 0.5rem;
   }
 
+  .citation,
+  pre,
+  code {
+    font-size: var(--fs-meta);
+  }
+
   summary {
     cursor: pointer;
     inline-size: fit-content;
+  }
+
+  pre,
+  code {
+    font-family: var(--font-mono, ui-monospace, monospace);
   }
 
   pre {

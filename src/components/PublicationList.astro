@@ -107,7 +107,8 @@ const isOwner = (author: string) => {
   .publication-group h2,
   .publication-group h3 {
     margin-block: 0 0.5rem;
-    font-size: 1.125rem;
+    font-size: var(--fs-body);
+    line-height: 1.5;
   }
 
   .publications {
@@ -137,6 +138,8 @@ const isOwner = (author: string) => {
   }
 
   .title {
+    font-size: var(--fs-body);
+    line-height: 1.5;
     overflow-wrap: anywhere;
   }
 
@@ -149,6 +152,17 @@ const isOwner = (author: string) => {
   .status,
   .legend {
     color: var(--muted);
+  }
+
+  .authors {
+    font-size: var(--fs-sub);
+  }
+
+  .venue,
+  .status,
+  .legend,
+  .references {
+    font-size: var(--fs-meta);
   }
 
   .references {
@@ -173,10 +187,6 @@ const isOwner = (author: string) => {
 
   .references:has(:global(details[open])) .bibtex-separator {
     display: none;
-  }
-
-  .legend {
-    font-size: 0.875rem;
   }
 
   @media (max-width: 36rem) {

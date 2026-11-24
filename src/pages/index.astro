@@ -21,6 +21,7 @@ const name = fullName(profile);
 const photo = resolveImage(profile.photo.image);
 const links = socialLinks(profile);
 const footerLinks = links.filter(({ key }) => key === 'github' || key === 'youtube');
+const statementParts = profile.statement.split(/(로봇 제어[가-힣]*|온디바이스 AI[가-힣]*)/u);
 const introParts = profile.intro?.split(/(RECS Lab|\s+)/u);
 const updated = formatBuildDate(new Date());
 const news = (newsFeed?.data.items ?? []).toSorted((a, b) => b.date.localeCompare(a.date));
@@ -43,8 +44,14 @@ const structuredData = JSON.stringify(person).replaceAll('<', '\\u003c');
     <header class="hero">
       <div class="hero-copy">
         <h1>{profile.name_ko} <span lang="en">{profile.name_en}</span></h1>
-        <p class="statement">{profile.statement}</p>
-        <p class="affiliation">{profile.position} · <span class="company-word">{profile.company} {profile.company_role}</span></p>
+        <p class="statement">{statementParts.map((part, index) =>
+          index % 2 ? <span class="statement-phrase">{part}</span> : part
+        )}</p>
+        <p class="affiliation">
+          <span class="affiliation-school">{profile.position}</span>
+          <span class="affiliation-divider" aria-hidden="true"> · </span>
+          <span class="company-word">{profile.company} {profile.company_role}</span>
+        </p>
       </div>
       {links.length > 0 && (
         <div class="hero-links"><SocialLinks items={links} /></div>
@@ -60,9 +67,9 @@ const structuredData = JSON.stringify(person).replaceAll('<', '\\u003c');
               class="portrait"
               src={photo}
               alt={profile.photo.alt}
-              width={140}
-              height={140}
-              densities={['2x']}
+              width={160}
+              height={160}
+              densities={['1.75x']}
               fit="cover"
               format="webp"
               loading="lazy"
@@ -92,12 +99,19 @@ const structuredData = JSON.stringify(person).replaceAll('<', '\\u003c');
   const threshold = 0.15;
 
   if (sections.length && 'IntersectionObserver' in window && matchMedia('(prefers-reduced-motion: no-preference)').matches) {
+    const aboutSection = document.getElementById('about')?.closest(sectionSelector);
+    const aboutBounds = aboutSection?.getBoundingClientRect();
+    const aboutVisibleOnLoad = window.scrollY === 0 && aboutBounds
+      && aboutBounds.top < window.innerHeight && aboutBounds.bottom > 0;
+
     const observer = new IntersectionObserver((entries) => {
       for (const entry of entries) {
         // Keep a section readable if it is too tall for 15% of it to fit on screen.
         const tooTall = entry.rootBounds && entry.boundingClientRect.height * threshold > entry.rootBounds.height;
 
-        if (entry.intersectionRatio >= threshold || tooTall) {
+        const initialAbout = aboutVisibleOnLoad && entry.target === aboutSection;
+
+        if (entry.intersectionRatio >= threshold || tooTall || initialAbout) {
           reveal(entry.target);
         }
       }
@@ -126,7 +140,7 @@ const structuredData = JSON.stringify(person).replaceAll('<', '\\u003c');
     display: flex;
     flex-direction: column;
     justify-content: center;
-    min-block-size: 100svh;
+    min-block-size: calc(100svh - 96px);
     padding-block: 2rem 6rem;
   }
 
@@ -140,58 +154,57 @@ const structuredData = JSON.stringify(person).replaceAll('<', '\\u003c');
     align-items: baseline;
     gap: .65rem;
     margin: 0;
-    font-size: 1.25rem;
+    font-size: var(--fs-name);
     font-weight: 700;
     line-height: 1.4;
   }
 
   .hero h1 span {
     color: var(--muted);
-    font-size: 1rem;
+    font-size: var(--fs-name-en);
     font-weight: 400;
   }
 
   .statement {
-    max-inline-size: 45rem;
+    max-inline-size: var(--content-width);
     margin: 0;
-    font-size: 2.25rem;
+    font-size: var(--fs-statement);
     font-weight: 400;
-    line-height: 1.5;
-    letter-spacing: 0;
+    line-height: 1.45;
+    text-wrap: balance;
   }
 
   .affiliation {
     margin: 0;
     color: var(--muted);
-    font-size: 1rem;
+    font-size: var(--fs-body);
   }
 
   .hero-links {
     margin-block-start: 1rem;
-    font-size: .875rem;
   }
 
-  .company-word { white-space: nowrap; }
+  .company-word,
+  .statement-phrase { white-space: nowrap; }
 
   .sections {
     display: grid;
     gap: var(--section-gap);
-    margin-block-start: var(--section-gap);
   }
 
   .sections:empty { display: none; }
 
   .about-content {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 8.75rem;
+    grid-template-columns: minmax(0, 1fr) 10rem;
     gap: 1.5rem;
     align-items: start;
   }
 
   .portrait {
     grid-area: 1 / 2;
-    inline-size: 8.75rem;
-    block-size: 8.75rem;
+    inline-size: 10rem;
+    block-size: 10rem;
     aspect-ratio: 1;
     object-fit: cover;
     border-radius: .25rem;
@@ -200,8 +213,7 @@ const structuredData = JSON.stringify(person).replaceAll('<', '\\u003c');
   .about-text {
     grid-area: 1 / 1;
     margin: 0;
-    font-size: 1rem;
-    line-height: 1.85;
+    font-size: var(--fs-body);
   }
 
   .footer {
@@ -210,18 +222,21 @@ const structuredData = JSON.stringify(person).replaceAll('<', '\\u003c');
     margin-block-start: var(--section-gap);
     padding-block-end: 3rem;
     color: var(--muted);
-    font-size: .8125rem;
+    font-size: var(--fs-meta);
   }
 
   .footer p { margin: 0; }
 
   @media (max-width: 38rem) {
     .hero {
-      min-block-size: max(80svh, calc(100svh - var(--section-gap)));
+      min-block-size: max(calc(80svh - 96px), calc(100svh - var(--section-gap) - 96px));
       padding-block-end: 5rem;
     }
 
-    .statement { font-size: 1.5rem; }
+    .affiliation-school,
+    .affiliation .company-word { display: block; }
+
+    .affiliation-divider { display: none; }
 
     .about-content {
       grid-template-columns: minmax(0, 1fr);
@@ -230,8 +245,8 @@ const structuredData = JSON.stringify(person).replaceAll('<', '\\u003c');
 
     .portrait {
       grid-area: 1 / 1;
-      inline-size: 6rem;
-      block-size: 6rem;
+      inline-size: 7rem;
+      block-size: 7rem;
     }
 
     .about-text { grid-area: 2 / 1; }

@@ -35,24 +35,28 @@ const rest = items.slice(6);
 )}
 
 <style>
-  .news-list { row-gap: .75rem; }
+  .news-list {
+    row-gap: .75rem;
+    font-size: var(--fs-body);
+  }
 
   li {
     display: grid;
-    grid-template-columns: 5rem minmax(0, 1fr);
+    grid-template-columns: 96px minmax(0, 1fr);
     align-items: baseline;
   }
 
   time {
     color: var(--muted);
     font-family: var(--font-mono, ui-monospace, monospace);
-    font-size: .8125rem;
+    font-size: var(--fs-meta);
   }
 
   summary {
     inline-size: fit-content;
     margin-block: .6rem;
     color: var(--accent);
+    font-size: var(--fs-sub);
     cursor: pointer;
   }
   details[open] summary span:first-child,

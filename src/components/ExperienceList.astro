@@ -40,20 +40,24 @@ const { heading, id, items } = Astro.props;
     align-items: baseline;
   }
 
-  .organization { font-weight: 600; }
+  .organization {
+    font-size: var(--fs-body);
+    font-weight: 600;
+    line-height: 1.5;
+  }
 
   .period {
     justify-self: end;
     color: var(--muted);
     font-family: var(--font-mono, ui-monospace, monospace);
-    font-size: .8125rem;
+    font-size: var(--fs-meta);
     white-space: nowrap;
   }
 
   .role {
     grid-column: 1 / -1;
     color: var(--muted);
-    font-size: .9375rem;
+    font-size: var(--fs-sub);
   }
 
   @media (max-width: 38rem) {

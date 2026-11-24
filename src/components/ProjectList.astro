@@ -33,8 +33,9 @@ const { items } = Astro.props;
           )}
           <div class="project-copy">
             <h3>{has_detail ? <a href={projectPath(slug)}>{title}</a> : title}</h3>
-            <p>{summary}</p>
+            {thumbnail && <p>{summary}</p>}
             <time datetime={dateTime(period)}>{period}</time>
+            {!thumbnail && <p>{summary}</p>}
           </div>
         </li>
       ))}
@@ -66,40 +67,52 @@ const { items } = Astro.props;
   .project-copy {
     display: grid;
     grid-template-columns: minmax(0, 1fr) max-content;
+    grid-template-areas:
+      "title period"
+      "description .";
     gap: .2rem 1rem;
     align-items: baseline;
   }
 
   .with-photo .project-copy {
     grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "title"
+      "description"
+      "period";
   }
 
   h3 {
+    grid-area: title;
     margin: 0;
-    font-size: 1rem;
+    font-size: var(--fs-body);
     font-weight: 700;
     line-height: 1.5;
   }
 
   p {
-    grid-column: 1;
+    grid-area: description;
     margin: 0;
     color: var(--muted);
-    font-size: .9375rem;
+    font-size: var(--fs-sub);
   }
 
   time {
-    grid-area: 1 / 2;
+    grid-area: period;
     color: var(--muted);
     font-family: var(--font-mono, ui-monospace, monospace);
-    font-size: .8125rem;
-  }
-
-  .with-photo time {
-    grid-area: auto;
+    font-size: var(--fs-meta);
   }
 
   @media (max-width: 38rem) {
     .with-photo { grid-template-columns: minmax(0, 1fr); }
+
+    .project-row:not(.with-photo) .project-copy {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas:
+        "title"
+        "period"
+        "description";
+    }
   }
 </style>
